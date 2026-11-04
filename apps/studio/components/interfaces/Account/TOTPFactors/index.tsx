@@ -1,7 +1,6 @@
 import { useFlag } from 'common'
 import dayjs from 'dayjs'
 import {
-  ChevronDownIcon,
   LockKeyholeIcon,
   PlusIcon,
   RectangleEllipsisIcon,
@@ -11,15 +10,7 @@ import {
 } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useState } from 'react'
-import {
-  Button,
-  Card,
-  CardContent,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from 'ui'
+import { Button, Card, CardContent } from 'ui'
 import { Admonition } from 'ui-patterns/Admonition'
 import { EmptyStatePresentational } from 'ui-patterns/EmptyStatePresentational'
 import {
@@ -38,7 +29,6 @@ import { AddNewFactorModal } from './AddNewFactorModal'
 import { DeleteFactorModal } from './DeleteFactorModal'
 import { GenerateRecoveryCodesModal } from './GenerateRecoveryCodesModal'
 import { RegenerateRecoveryCodesModal } from './RegenerateRecoveryCodesModal'
-import { UnenrollRecoveryCodesModal } from './UnenrollRecoveryCodesModal'
 import { AlertError } from '@/components/ui/AlertError'
 import { ButtonTooltip } from '@/components/ui/ButtonTooltip'
 import { useMfaListFactorsQuery } from '@/data/profile/mfa-list-factors-query'
@@ -241,87 +231,64 @@ export const TOTPFactors = ({ findings, primaryAction }: TOTPFactorsProps) => {
                 ) : null
               }
             </GenerateRecoveryCodesModal>
-            <UnenrollRecoveryCodesModal>
-              {({ onClick: onRemove }) => (
-                <RegenerateRecoveryCodesModal>
-                  {({ onClick, isPending }) => {
-                    if (
-                      !shouldVerifyRecoveryCodes ||
-                      status !== 'available' ||
-                      !codes ||
-                      recoveryCodesIsError
-                    )
-                      return null
-                    const action = (
-                      <div className="flex w-fit">
-                        <Button
-                          variant={isCodeActionPrimary ? 'primary' : 'default'}
-                          className="flex-1 @lg:flex-none rounded-r-none hover:z-10 focus-visible:z-10 focus-visible:rounded-r-sm"
-                          icon={<RefreshCwIcon />}
-                          onClick={onClick}
-                          loading={isPending}
-                        >
-                          Regenerate
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant={isCodeActionPrimary ? 'primary' : 'default'}
-                              aria-label="Recovery code options"
-                              className="shrink-0 rounded-l-none px-1 py-1.25 -ml-px focus-visible:z-10 focus-visible:rounded-l-sm"
-                              icon={<ChevronDownIcon />}
-                            />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem onSelect={onRemove}>Remove codes</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )
-                    return (
-                      <>
-                        {codeFinding && (
-                          <Admonition
-                            type={codeFinding.severity === 'critical' ? 'destructive' : 'warning'}
-                            title={
-                              codeFinding.id === 'recovery-codes-exhausted'
-                                ? 'Recovery codes used up'
-                                : `${codes.remaining} recovery ${codes.remaining === 1 ? 'code' : 'codes'} remaining`
-                            }
-                            description={
-                              codeFinding.id === 'recovery-codes-exhausted'
-                                ? 'Generate a new set so you have a backup way to sign in.'
-                                : 'Generate a new set before you need them to recover your account.'
-                            }
-                          />
-                        )}
-                        <Card>
-                          <CardContent className="flex flex-wrap items-center justify-between gap-4">
-                            <div className="flex items-center gap-x-4">
-                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-selection">
-                                <RectangleEllipsisIcon
-                                  size={18}
-                                  className="text-foreground-lighter"
-                                />
-                              </div>
-                              <div className="text-sm">
-                                <p>
-                                  {codes.remaining} of {codes.total} recovery codes available
-                                </p>
-                                <p className="text-foreground-lighter">
-                                  Each code can only be used once. Keep them somewhere safe.
-                                </p>
-                              </div>
-                            </div>
-                            {action}
-                          </CardContent>
-                        </Card>
-                      </>
-                    )
-                  }}
-                </RegenerateRecoveryCodesModal>
-              )}
-            </UnenrollRecoveryCodesModal>
+            <RegenerateRecoveryCodesModal>
+              {({ onClick, isPending }) => {
+                if (
+                  !shouldVerifyRecoveryCodes ||
+                  status !== 'available' ||
+                  !codes ||
+                  recoveryCodesIsError
+                )
+                  return null
+                const action = (
+                  <Button
+                    variant={isCodeActionPrimary ? 'primary' : 'default'}
+                    icon={<RefreshCwIcon />}
+                    onClick={onClick}
+                    loading={isPending}
+                  >
+                    Regenerate
+                  </Button>
+                )
+                return (
+                  <>
+                    {codeFinding && (
+                      <Admonition
+                        type={codeFinding.severity === 'critical' ? 'destructive' : 'warning'}
+                        title={
+                          codeFinding.id === 'recovery-codes-exhausted'
+                            ? 'Recovery codes used up'
+                            : `${codes.remaining} recovery ${codes.remaining === 1 ? 'code' : 'codes'} remaining`
+                        }
+                        description={
+                          codeFinding.id === 'recovery-codes-exhausted'
+                            ? 'Generate a new set so you have a backup way to sign in.'
+                            : 'Generate a new set before you need them to recover your account.'
+                        }
+                      />
+                    )}
+                    <Card>
+                      <CardContent className="flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex items-center gap-x-4">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-selection">
+                            <RectangleEllipsisIcon size={18} className="text-foreground-lighter" />
+                          </div>
+                          <div className="text-sm">
+                            <p>
+                              {codes.remaining} of {codes.total} recovery codes available
+                            </p>
+                            <p className="text-foreground-lighter">
+                              Each code can only be used once. Keep them somewhere safe.
+                            </p>
+                          </div>
+                        </div>
+                        {action}
+                      </CardContent>
+                    </Card>
+                  </>
+                )
+              }}
+            </RegenerateRecoveryCodesModal>
           </PageSectionContent>
         </PageSection>
       )}
