@@ -45,6 +45,14 @@
   --text-8xl: 5.875rem;
   --text-9xl: 7.875rem;
   --font-weight-normal: 450;
+  --container-docs-content: 731px;
+}
+
+@utility docs-active-bar {
+  &[aria-current]::before {
+    @apply absolute -left-[13px] top-1/2 h-[1em] w-px -translate-y-1/2 bg-brand;
+    content: '';
+  }
 }
 
 @layer utilities {
