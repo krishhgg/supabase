@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
 import { useFlag } from 'common'
 import { useId, useMemo, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
@@ -29,6 +28,7 @@ import { AlertError } from '@/components/ui/AlertError'
 import { getMfaAuthenticatorAssuranceLevel } from '@/data/profile/mfa-authenticator-assurance-level-query'
 import { useMfaChallengeAndVerifyMutation } from '@/data/profile/mfa-challenge-and-verify-mutation'
 import { useMfaListFactorsQuery, type MFAFactor } from '@/data/profile/mfa-list-factors-query'
+import { BASE_PATH } from '@/lib/constants'
 
 const VerificationSchema = z.object({
   code: z.string().trim().min(1, 'Enter an authentication code'),
@@ -275,9 +275,9 @@ const VerificationForm = ({
           </Button>
           {canUseRecoveryCodes && (
             <Button asChild block variant="text">
-              <Link to="/sign-in-recovery-code" search={{ returnTo }}>
+              <a href={`${BASE_PATH}/sign-in-recovery-code?${new URLSearchParams({ returnTo })}`}>
                 Use recovery code instead
-              </Link>
+              </a>
             </Button>
           )}
         </div>
