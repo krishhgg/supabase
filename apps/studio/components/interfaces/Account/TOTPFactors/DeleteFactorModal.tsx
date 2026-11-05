@@ -25,20 +25,21 @@ interface DeleteFactorModalProps {
 }
 
 export const DeleteFactorModal = (props: DeleteFactorModalProps) => {
-  if (!props.visible) return null
+  const { visible, factorId, onClose, onCheckingIdentity } = props
+  if (!visible) return null
+
   return (
     <IdentityVerification
-      factorToAvoidId={props.factorId ?? undefined}
-      onCancel={props.onClose}
-      onCheckingChange={props.onCheckingIdentity}
+      factorToAvoidId={factorId ?? undefined}
+      onCancel={onClose}
+      onCheckingChange={onCheckingIdentity}
     >
-      {(isVerified) => <RemoveAuthenticatorConfirmation {...props} visible={isVerified} />}
+      <RemoveAuthenticatorConfirmation {...props} />
     </IdentityVerification>
   )
 }
 
 const RemoveAuthenticatorConfirmation = ({
-  visible,
   factorId,
   lastFactorToBeDeleted,
   hasRecoveryCodes,
@@ -67,7 +68,7 @@ const RemoveAuthenticatorConfirmation = ({
           queryKey: organizationKeys.members(lastVisitedOrganization),
         })
       }
-      toast.success('Authenticator removed')
+      toast.success('Successfully removed authenticator')
       handleClose()
     },
   })
@@ -91,9 +92,9 @@ const RemoveAuthenticatorConfirmation = ({
 
   return (
     <ConfirmationModal
+      visible
       size="medium"
-      visible={visible}
-      variant={'destructive'}
+      variant="destructive"
       title="Remove authenticator"
       confirmLabel="Remove"
       confirmLabelLoading="Removing"
