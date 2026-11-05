@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import {
   Button,
   CardContent,
+  CardFooter,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -168,17 +169,16 @@ export const IdentityVerification = ({
                   loading={loading}
                   error={error}
                   onVerify={handleVerify}
-                  onCancel={onCancel}
                   canUseRecoveryCodes={enableAuthRecoveryCodes && canUseRecoveryCodes}
                   returnTo={returnTo}
                 />
               )}
-              {(readError || factors.isPending) && (
-                <Button block onClick={onCancel} variant="text">
-                  Cancel
-                </Button>
-              )}
             </CardContent>
+            <CardFooter className="justify-center border-t px-6 py-5">
+              <Button variant="text" size="tiny" onClick={onCancel}>
+                Cancel
+              </Button>
+            </CardFooter>
           </InterstitialLayout>
         </DialogContent>
       </Dialog>
@@ -194,7 +194,6 @@ const VerificationForm = ({
   loading,
   error,
   onVerify,
-  onCancel,
 }: {
   verifiedFactors: MFAFactor[]
   factorToAvoidId?: string
@@ -202,7 +201,6 @@ const VerificationForm = ({
   returnTo: string
   loading: boolean
   error: { message: string } | null
-  onCancel: () => void
   onVerify: (values: VerificationValues) => void
 }) => {
   const preferredFactor =
@@ -282,9 +280,6 @@ const VerificationForm = ({
               </Link>
             </Button>
           )}
-          <Button block type="button" variant="text" onClick={onCancel}>
-            Cancel
-          </Button>
         </div>
       </form>
     </Form>
