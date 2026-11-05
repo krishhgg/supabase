@@ -37,7 +37,7 @@ describe('DeleteFactorModal', () => {
     )
     await screen.findByText('Remove authenticator')
     expect(screen.queryByText('Multi-factor authentication will be disabled')).toBeNull()
-    expect(screen.queryByText('Your recovery codes will be removed too')).toBeNull()
+    expect(screen.queryByText(/recovery codes/)).toBeNull()
     fireEvent.click(await screen.findByRole('button', { name: 'Remove' }))
     await waitFor(() => expect(unenroll).toHaveBeenCalled())
     await waitFor(() => expect(onClose).toHaveBeenCalled())
@@ -69,7 +69,8 @@ describe('DeleteFactorModal', () => {
     )
     await screen.findByText('Remove authenticator')
     await screen.findByText('Multi-factor authentication will be disabled')
-    expect(screen.queryByText('Your recovery codes will be removed too')).toBeNull()
+    expect(screen.getByText('Removing your last authenticator disables MFA.')).toBeInTheDocument()
+    expect(screen.queryByText(/recovery codes/)).toBeNull()
     fireEvent.click(await screen.findByRole('button', { name: 'Remove' }))
     await waitFor(() => expect(unenroll).toHaveBeenCalled())
     await waitFor(() => expect(onClose).toHaveBeenCalled())
@@ -101,7 +102,9 @@ describe('DeleteFactorModal', () => {
     )
     await screen.findByText('Remove authenticator')
     await screen.findByText('Multi-factor authentication will be disabled')
-    await screen.findByText('Your recovery codes will be removed too')
+    await screen.findByText(
+      'Removing your last authenticator disables MFA and removes your recovery codes.'
+    )
     fireEvent.click(await screen.findByRole('button', { name: 'Remove' }))
     await waitFor(() => expect(unenrollRecoveryCodes).toHaveBeenCalled())
     await waitFor(() => expect(unenroll).toHaveBeenCalled())
@@ -132,7 +135,6 @@ describe('DeleteFactorModal', () => {
       />
     )
     await screen.findByText('Remove authenticator')
-    expect(screen.queryByText('Your recovery codes will be removed too')).toBeNull()
     fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(unenroll).not.toHaveBeenCalled()
@@ -198,7 +200,11 @@ describe('authenticator removal failures', () => {
     expect(
       screen.getByText(/Your recovery codes were removed, but your authenticator is still active/)
     ).toBeInTheDocument()
-    expect(screen.getByText('Your recovery codes will be removed too')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Removing your last authenticator disables MFA and removes your recovery codes.'
+      )
+    ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'contact support' })).toBeInTheDocument()
     fireEvent.click(await screen.findByRole('button', { name: 'Remove' }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())

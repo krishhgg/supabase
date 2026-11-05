@@ -36,6 +36,7 @@ export const DeleteFactorModal = ({
   const queryClient = useQueryClient()
   const [error, setError] = useState<{ message: string } | null>(null)
   const [hasRemovedRecoveryCodes, setHasRemovedRecoveryCodes] = useState(false)
+
   const handleClose = () => {
     setError(null)
     setHasRemovedRecoveryCodes(false)
@@ -59,11 +60,6 @@ export const DeleteFactorModal = ({
 
   const unenrollRecoveryCodesMutation = useRecoveryCodesUnenrollMutation({
     onError: setError,
-    onSuccess: () => {
-      setHasRemovedRecoveryCodes(true)
-      if (!factorId) return // Should never happen
-      unenrollMFAMutation.mutate({ factorId })
-    },
   })
 
   const loading = unenrollMFAMutation.isPending || unenrollRecoveryCodesMutation.isPending
@@ -73,6 +69,26 @@ export const DeleteFactorModal = ({
   const lastAuthenticatorDescription = shouldExplainRecoveryCodeRemoval
     ? 'Removing your last authenticator disables MFA and removes your recovery codes.'
     : 'Removing your last authenticator disables MFA.'
+
+  const onConfirmDeleteFactor = async () => {
+    if (!factorId || loading || !canRemove) return
+    setError(null)
+
+    // The API requires recovery codes to be removed before the last verified authenticator.
+    const shouldDeleteRecoveryCodes =
+      lastFactorToBeDeleted && hasRecoveryCodes && !hasRemovedRecoveryCodes
+
+    if (shouldDeleteRecoveryCodes) {
+      try {
+        await unenrollRecoveryCodesMutation.mutateAsync()
+        setHasRemovedRecoveryCodes(true)
+      } catch {
+        return
+      }
+    }
+
+    unenrollMFAMutation.mutate({ factorId })
+  }
 
   return (
     <ConfirmationModal
@@ -85,17 +101,7 @@ export const DeleteFactorModal = ({
       loading={loading}
       onCancel={handleClose}
       disabled={!factorId || !canRemove}
-      onConfirm={() => {
-        if (!factorId || loading || !canRemove) return
-        setError(null)
-        // The API requires recovery codes to be removed before the last verified authenticator.
-        const shouldDeleteRecoveryCodes =
-          lastFactorToBeDeleted && hasRecoveryCodes && !hasRemovedRecoveryCodes
-        if (factorId && !shouldDeleteRecoveryCodes) {
-          return unenrollMFAMutation.mutate({ factorId })
-        }
-        unenrollRecoveryCodesMutation.mutate()
-      }}
+      onConfirm={onConfirmDeleteFactor}
       alert={{
         title: lastFactorToBeDeleted
           ? 'Multi-factor authentication will be disabled'
@@ -114,7 +120,6 @@ export const DeleteFactorModal = ({
             <li>
               You will lose access to any organization that enforces multi-factor authentication
             </li>
-            {shouldExplainRecoveryCodeRemoval && <li>Your recovery codes will be removed too</li>}
           </>
         ) : (
           <>
@@ -123,6 +128,7 @@ export const DeleteFactorModal = ({
           </>
         )}
       </ul>
+
       {!canRemove && recoveryCodesError && (
         <AlertError
           className="mt-4"
@@ -138,6 +144,7 @@ export const DeleteFactorModal = ({
           }
         />
       )}
+
       {error && (
         <AlertError
           className="mt-4"
