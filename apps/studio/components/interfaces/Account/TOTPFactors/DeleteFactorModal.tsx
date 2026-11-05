@@ -17,6 +17,7 @@ interface DeleteFactorModalProps {
   lastFactorToBeDeleted: boolean
   hasRecoveryCodes: boolean
   onCheckingIdentity?: (isChecking: boolean) => void
+  canUseRecoveryCodes?: boolean
   canRemove?: boolean
   recoveryCodesError?: { message: string } | null
   isCheckingRecoveryCodes?: boolean
@@ -31,6 +32,8 @@ export const DeleteFactorModal = (props: DeleteFactorModalProps) => {
       factorToAvoidId={props.factorId ?? undefined}
       onCancel={props.onClose}
       onCheckingChange={props.onCheckingIdentity}
+      canUseRecoveryCodes={props.canUseRecoveryCodes}
+      returnTo={`/account/security?removeAuthenticator=${encodeURIComponent(props.factorId ?? '')}`}
     >
       {(isVerified) => <RemoveAuthenticatorConfirmation {...props} visible={isVerified} />}
     </IdentityVerification>
